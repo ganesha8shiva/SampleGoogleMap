@@ -1,5 +1,0 @@
-test message
-
-new message
-
-some message
