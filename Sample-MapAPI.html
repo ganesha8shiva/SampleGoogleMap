@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Sample Demo</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+      }
+      #directions-panel {
+        height: 100%;
+        float: right;
+        width: 390px;
+        overflow: auto;
+      }
+
+      #map-canvas {
+        margin-right: 400px;
+      }
+      
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    
+  </head>
+  <body>
+   <table>
+       <tr>
+           <td>
+               <select id="start" onchange="calcRoute();">
+                  <option value="1">---Select Route type----</option>
+                  <option value="1">Optimized</option>
+                  <option value="2">Not optimized</option>
+                </select>
+            </td>
+           <td>
+               <div id="TotalMiles" style="color:red;font-size:30px"></div>
+           </td>
+       </tr>
+   </table>
+      
+    <div id="directions-panel" style="display:none"></div>
+    <div id="map-canvas" style="display:none"></div>
+    
+      <script>
+          var directionsDisplay = new google.maps.DirectionsRenderer();
+          var directionsService = new google.maps.DirectionsService();
+          var startAddr = '110 E 9th St, Los Angeles, CA';
+          var endAddr = '110 E 9th St, Los Angeles, CA';
+          
+         
+          function calcRoute() {
+              var mapOptions = {
+                  zoom: 7,
+                  mapTypeId: google.maps.MapTypeId.ROADMAP,
+              };
+              var map = new google.maps.Map(document.getElementById('map-canvas'),
+                  mapOptions);
+              directionsDisplay.setMap(map);
+              directionsDisplay.setPanel(document.getElementById('directions-panel'));
+
+              document.getElementById('map-canvas').style.display = 'block';
+              document.getElementById('directions-panel').style.display = 'block';
+              var totalmiles = 0;
+              var choose = document.getElementById('start').value;
+              var Array_tblTravelAddr = new Array()
+              var waypts = [];
+              if (choose==1)
+                  Array_tblTravelAddr = new Array("3300 Coach Lane, Cameron Park, CA", "235 N. Union Ave, Newport, WA")
+              else
+                  Array_tblTravelAddr = new Array("235 N. Union Ave, Newport, WA","3300 Coach Lane, Cameron Park, CA")
+              var rowCount = Array_tblTravelAddr.length;
+              for (var i = 0; i < rowCount; i++) {
+                  waypts.push({
+                      location: Array_tblTravelAddr[i],
+                      stopover: true
+                  });
+              }
+              var request = {
+                  origin: startAddr,
+                  destination: endAddr,
+                  waypoints: waypts,
+                  optimizeWaypoints: false,
+                  travelMode: google.maps.TravelMode.DRIVING
+              };
+              directionsService.route(request, function (response, status) {
+                  if (status == google.maps.DirectionsStatus.OK) {
+                      for (i = 0; i <= response.routes[0].legs.length - 2; i++) {
+                          var route = response.routes[0];                          var d = route.legs[i].distance.text;
+                          totalmiles = totalmiles + roundNumber(parseFloat((d.split(" ")[0]).replace(",", "")), 2);
+                          document.getElementById('TotalMiles').innerHTML = totalmiles + " miles";
+                      }
+                      directionsDisplay.setDirections(response);
+                  }
+              });
+          }
+          
+          function roundNumber(num, dec) {
+              var result = Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);              return result;
+          }
+         
+    </script>
+
+  </body>
+</html>
